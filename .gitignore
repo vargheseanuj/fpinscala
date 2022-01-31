@@ -12,3 +12,5 @@ project.vim
 .metadata/
 .bsp
 .metals
+*.iml
+null
