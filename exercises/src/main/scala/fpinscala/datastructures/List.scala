@@ -74,17 +74,25 @@ object List { // `List` companion object. Contains functions for creating and wo
   }
 
   def init[A](l: List[A]): List[A] = {
-    def createCons(h: A, con: List[A]) = Cons(h, con)
+    def createCons(h: A, con: List[A]):List[A] = con match {
+      case Cons(_, Nil) => con
+      case Cons(_, t) => createCons(h, t)
+    }
+
     l match {
       case Nil => Nil
-      case Cons(h, t) => if (t == Nil) Cons(h, Nil)
-      else createCons(h, t)
+      case Cons(h, Nil) => Nil
+      case Cons(h, t) => createCons(h, t)
     }
   }
 
-  def length[A](l: List[A]): Int = ???
+  def length[A](l: List[A]): Int = foldRight(l,0)((_,b) => b + 1)
 
-  def foldLeft[A,B](l: List[A], z: B)(f: (B, A) => B): B = ???
+  def foldLeft[A,B](l: List[A], z: B)(f: (B, A) => B): B =
+    l match {
+      case Nil => z
+      case Cons(x, xs) => foldLeft(xs, f(z, x))(f)
+    }
 
   def map[A,B](l: List[A])(f: A => B): List[B] = ???
 }
