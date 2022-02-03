@@ -81,18 +81,59 @@ object List { // `List` companion object. Contains functions for creating and wo
 
     l match {
       case Nil => Nil
-      case Cons(h, Nil) => Nil
+      case Cons(_, Nil) => Nil
       case Cons(h, t) => createCons(h, t)
     }
   }
 
   def length[A](l: List[A]): Int = foldRight(l,0)((_,b) => b + 1)
 
+  @scala.annotation.tailrec
   def foldLeft[A,B](l: List[A], z: B)(f: (B, A) => B): B =
     l match {
       case Nil => z
       case Cons(x, xs) => foldLeft(xs, f(z, x))(f)
     }
 
-  def map[A,B](l: List[A])(f: A => B): List[B] = ???
+  def lengthFoldLeft[A](l: List[A]): Int = foldLeft(l, 0)((b, a) => b + 1)
+
+  def reverse[A](l: List[A]): List[A] = l match {
+    case Nil => Nil
+    case Cons(h, t: Cons[A]) => foldLeft(t, Cons[A](h, Nil))((b, a) => a match {
+      case Nil => b
+      case Cons(x: A, _) => Cons[A](x, b)
+    })
+  }
+
+  def addOneToEach(l: List[Int], updatedList: List[Int] = Nil ): List[Int] = l match {
+    case Nil => updatedList
+    case Cons(h, t) => addOneToEach(t, Cons(h + 1, t))
+  }
+
+  def map[A,B](l: List[A])(f: A => B): List[B] = {
+    l match {
+      case Nil => Nil
+      case Cons(h, t) => map(t)(f)
+    }
+  }
+
+  def filter[A](l: List[A])(f: A => Boolean):List[A] = {
+    def predicate(l: List[A], filteredList: List[A]):List[A] =
+      l match {
+        case Nil => filteredList
+        case Cons(h, t) => if (f(h)) Cons(h, tail(l))
+        else filteredList
+      }
+    l match {
+      case Nil => Nil
+      case Cons(_, _) => predicate(l, Nil)
+    }
+  }
+
+  def flatMap[A,B](as: List[A])(f: A => List[B]): List[B] = {
+    as match {
+      case Nil => Nil
+      case Cons(_, _) => flatMap(tail(as))(f)
+    }
+  }
 }
