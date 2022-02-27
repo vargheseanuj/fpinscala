@@ -17,7 +17,7 @@ trait Stream[+A] {
     case Empty => None
     case Cons(h, t) => if (f(h())) Some(h()) else t().find(f)
   }
-  def take(n: Int): Stream[A] = ???
+  def take(n: Int): Stream[A] = this.foldRight((Empty,1))((a, b) => if (b._2))
 
   def drop(n: Int): Stream[A] = ???
 
