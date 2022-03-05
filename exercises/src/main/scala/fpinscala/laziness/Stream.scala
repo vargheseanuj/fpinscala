@@ -31,14 +31,14 @@ trait Stream[+A] {
   }
 
   def takeWhile(p: A => Boolean): Stream[A] = this match {
-    case Cons(h, t) => if (p(h())) cons(h(), t().takeWhile(p)) else empty
+    case Cons(h, t) if p(h()) => cons(h(), t().takeWhile(p))
     case Empty => empty
   }
 
   def takeWhile_1(p: A => Boolean): Stream[A] = this.foldRight(empty)((a,b) => if(p(a)) cons(a, b) else empty)
 
   def forAll(p: A => Boolean): Boolean = this match {
-    case Cons(h, t) if (p(h())) =>  cons(h(), t()) .forAll(p)
+    case Cons(h, t) if p(h()) =>  cons(h(), t()) .forAll(p)
     case _ => false
   }
 
@@ -82,5 +82,23 @@ object Stream {
 
   def from(n: Int): Stream[Int] = cons(n, from(n+1))
 
-  def unfold[A, S](z: S)(f: S => Option[(A, S)]): Stream[A] = ???
+  def fibs(a: Int = 0, b: Int = 1): Stream[Int] = cons(a, fibs(b, a+b))
+
+  def unfold[A, S](z: S)(f: S => Option[(A, S)]): Stream[A] = f(z) match {
+    case Some((a,b)) => cons(a, unfold(b)(f))
+    case None => empty
+  }
+
+  def fromViaUnfold(x: Int): Stream[Int] = unfold(x)(a => Some(a, a+1))
+
+  def constantViaUnfold(x: Int): Stream[Int] = unfold(x)(a => Some(a, a))
+
+  def fibsViaUnfold: Stream[Int] = {
+    val startWith = (0, 1)
+    unfold(startWith)(a => Some(a._1, (a._2, a._1 + a._2)))
+  }
+
+  def map()
+
+
 }
